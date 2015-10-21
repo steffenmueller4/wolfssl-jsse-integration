@@ -64,8 +64,5 @@ public class ServerTestFromDeliveredExampleClient extends SSLSocketTestBase {
 		super.startClientAndServer();
 		
 		logger.info("Resetting keystore and truststore...");
-
-		System.setProperty("javax.net.ssl.keyStore", "/home/steffen-adm/workspace_wolfssl/wolfssl-jni-1.2.0/examples/certs/server-key.pem");
-		System.setProperty("javax.net.ssl.trustStore", "/home/steffen-adm/workspace_wolfssl/wolfssl-jni-1.2.0/examples/certs/server-cert.pem");
 	}
 }
