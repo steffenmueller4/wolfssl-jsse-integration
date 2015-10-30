@@ -67,7 +67,7 @@ final class WolfSSLSessionImpl extends ExtendedSSLSession {
 	@Override
 	public String getCipherSuite() {
 		updateLastAccess();
-		if (referencedSocket.isClosed() || !isValid())
+		if (referencedSocket == null)
 			return null;
 		else
 			return referencedSocket.session.cipherGetName();

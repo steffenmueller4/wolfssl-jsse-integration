@@ -69,5 +69,4 @@ public class WolfSSLSocketFactoryImpl extends SSLSocketFactory {
 		String host = address.getHostName();
 		return new WolfSSLSocketImpl(context, true, host, port, localHost, localPort);
 	}
-
 }

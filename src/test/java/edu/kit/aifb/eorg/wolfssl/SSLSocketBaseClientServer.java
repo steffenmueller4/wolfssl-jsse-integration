@@ -1,5 +1,8 @@
 package edu.kit.aifb.eorg.wolfssl;
 
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -12,8 +15,6 @@ import javax.net.ssl.SSLSocket;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * A test server skeleton.
@@ -22,9 +23,10 @@ import static org.junit.Assert.assertNotNull;
  *
  */
 abstract class SSLSocketBaseClientServer extends Thread implements HandshakeCompletedListener {
-	
+
 	/**
-	 * Indicates if this instance is ready, e.g., if the server is ready to accept incomming connections.
+	 * Indicates if this instance is ready, e.g., if the server is ready to
+	 * accept incomming connections.
 	 */
 	public volatile boolean isReady = false;
 	/**
@@ -70,14 +72,21 @@ abstract class SSLSocketBaseClientServer extends Thread implements HandshakeComp
 
 	/**
 	 * Constructor.
-	 * @param name The name of the Thread
-	 * @param stopOnException Indicates if the test should stop on an exception.
-	 * @param registerHandshakeCompletedListener Indicates if a {@link HandshakeCompletedListener} should be registered.
-	 * @throws NoSuchAlgorithmException If the {@link SSLContext} could not be instantiated.
+	 * 
+	 * @param name
+	 *            The name of the Thread
+	 * @param stopOnException
+	 *            Indicates if the test should stop on an exception.
+	 * @param registerHandshakeCompletedListener
+	 *            Indicates if a {@link HandshakeCompletedListener} should be
+	 *            registered.
+	 * @throws NoSuchAlgorithmException
+	 *             If the {@link SSLContext} could not be instantiated.
 	 */
-	public SSLSocketBaseClientServer(String name, int port, boolean stopOnException, boolean registerHandshakeCompletedListener) throws NoSuchAlgorithmException {
+	public SSLSocketBaseClientServer(String name, int port, boolean stopOnException,
+			boolean registerHandshakeCompletedListener) throws NoSuchAlgorithmException {
 		this.setName(name);
-		
+
 		this.sslContext = SSLContext.getDefault();
 		this.port = port;
 		this.stopOnException = stopOnException;
@@ -88,55 +97,59 @@ abstract class SSLSocketBaseClientServer extends Thread implements HandshakeComp
 	public void run() {
 		try {
 			startup();
-			
+
 			// Accept the socket connection
 			sslSocket = getSSLSocket();
 			assertNotNull(sslSocket);
 			assertTrue(sslSocket.isConnected());
 			try {
-				if(registerHandshakeCompletedListener)
-					sslSocket
-						.addHandshakeCompletedListener(this);
+				if (registerHandshakeCompletedListener)
+					sslSocket.addHandshakeCompletedListener(this);
 
 				// Get the streams
 				InputStream inputStream = sslSocket.getInputStream();
 				OutputStream outputStream = sslSocket.getOutputStream();
-				
+
 				assertNotNull(inputStream);
 				assertNotNull(outputStream);
 
 				// Invoke the test case implementation
 				sendReceive(inputStream, outputStream);
-			}finally{
+			} finally {
 				sslSocket.close();
 			}
-			
+
 			cleanup();
 		} catch (Exception e) {
 			thrown = e;
 			logger.error("Error in server", e);
-			if(stopOnException){
+			if (stopOnException) {
 				return;
 			}
 		}
 	}
-	
+
 	/**
-	 * Starts the neccessary things to accept incomming connection (server) / start connections (client).
+	 * Starts the neccessary things to accept incomming connection (server) /
+	 * start connections (client).
+	 * 
 	 * @return
 	 * @throws IOException
 	 */
 	public abstract void startup() throws IOException;
-	
+
 	/**
 	 * Cleans up the neccessary things.
 	 * 
-	 * @throws IOException If an IOException occurs
+	 * @throws IOException
+	 *             If an IOException occurs
 	 */
 	public abstract void cleanup() throws IOException;
-	
+
 	/**
-	 * Gets the {@link SSLSocket}, i.e., retuns the {@link SSLSocket} after accept (Server) / connect (Client).
+	 * Gets the {@link SSLSocket}, i.e., retuns the {@link SSLSocket} after
+	 * accept (Server) / connect (Client).
+	 * 
 	 * @return
 	 * @throws IOException
 	 */
@@ -149,7 +162,7 @@ abstract class SSLSocketBaseClientServer extends Thread implements HandshakeComp
 	 *             If something goes wrong.
 	 */
 	public abstract void sendReceive(InputStream inputStream, OutputStream outputStream) throws IOException;
-	
+
 	@Override
 	public void handshakeCompleted(HandshakeCompletedEvent event) {
 		synchronized (handshakeListenerLock) {

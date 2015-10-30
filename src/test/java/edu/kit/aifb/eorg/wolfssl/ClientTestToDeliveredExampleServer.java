@@ -6,7 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.NoSuchAlgorithmException;
-import java.security.Security;
 
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
@@ -31,11 +30,11 @@ public class ClientTestToDeliveredExampleServer extends SSLSocketTestBase {
 				outputStream.flush();
 
 				// Receive from the server
-				byte[] b = new byte[80];
+				byte[] b = new byte[msg.getBytes().length];
 
 				int r = inputStream.read(b);
 				assertTrue(r > 0);
-					
+
 				logger.info("Server answered: {}", new String(b));
 			}
 
@@ -55,12 +54,5 @@ public class ClientTestToDeliveredExampleServer extends SSLSocketTestBase {
 
 		logger.info("Test finished!");
 		cleanupAfterTests();
-	}
-	
-	@Override
-	public void startClientAndServer() throws NoSuchAlgorithmException, IOException, InterruptedException {
-		super.startClientAndServer();
-		
-		logger.info("Resetting keystore and truststore...");
 	}
 }

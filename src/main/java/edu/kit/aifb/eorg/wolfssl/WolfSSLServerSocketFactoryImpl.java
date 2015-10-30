@@ -60,5 +60,4 @@ public class WolfSSLServerSocketFactoryImpl extends SSLServerSocketFactory {
 	public ServerSocket createServerSocket(int port, int backlog, InetAddress ifAddress) throws IOException {
 		return new WolfSSLServerSocketImpl(context, port, backlog, ifAddress);
 	}
-
 }

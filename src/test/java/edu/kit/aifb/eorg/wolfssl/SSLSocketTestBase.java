@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public abstract class SSLSocketTestBase {
-	
+
 	protected static final boolean DEBUG = false;
 
 	protected SSLSocketTestServer server;
@@ -32,7 +32,6 @@ public abstract class SSLSocketTestBase {
 	@Before
 	public void startClientAndServer() throws NoSuchAlgorithmException,
 			IOException, InterruptedException {
-		// Register the security provider
 		Security.insertProviderAt(
 				new edu.kit.aifb.eorg.wolfssl.WolfSSLJSSEProvider(), 1);
 

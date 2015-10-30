@@ -6,12 +6,17 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLServerSocket;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.wolfssl.WolfSSLContext;
 
 /**
  * The JSSE API SSLServerSocket implementation.
+ * 
  * @author S. Mueller (AIFB, Karlsruhe Institute of Technology)
  *
  */
@@ -21,39 +26,43 @@ public class WolfSSLServerSocketImpl extends SSLServerSocket {
 	 * The default value for backlog.
 	 */
 	private static final int BACKLOG_DEFAULT = 50;
+	/**
+	 * The logger.
+	 */
+	private final Logger logger = LoggerFactory.getLogger(WolfSSLServerSocketImpl.class);
 	private final WolfSSLContext context;
 	private int backlog = BACKLOG_DEFAULT;
-	
+	private SSLParameters sslParameters = WolfSSLContextImpl.defaultServerSSLParams;
 
-	WolfSSLServerSocketImpl(WolfSSLContext context) throws IOException{
+	WolfSSLServerSocketImpl(WolfSSLContext context) throws IOException {
 		super();
-		
+
 		// Check input
-		if(context == null)
+		if (context == null)
 			throw new NullPointerException("Context must not be null!");
 		this.context = context;
-		
+
 		assert (context != null);
 	}
-			
+
 	WolfSSLServerSocketImpl(WolfSSLContext context, int port, int backlog) throws IOException {
 		this(context, port, backlog, null);
 	}
-	
+
 	WolfSSLServerSocketImpl(WolfSSLContext context, int port) throws IOException {
 		this(context, port, BACKLOG_DEFAULT, null);
 	}
-	
+
 	WolfSSLServerSocketImpl(WolfSSLContext context, int port, int backlog, InetAddress ifAddress) throws IOException {
 		this(context);
-		
+
 		// Set the backlog
 		this.backlog = backlog;
-		
-		if(ifAddress == null)
+
+		if (ifAddress == null)
 			ifAddress = InetAddress.getByName(null);
 		SocketAddress localSocketAddress = new InetSocketAddress(ifAddress, port);
-		
+
 		bind(localSocketAddress, backlog);
 	}
 
@@ -75,7 +84,7 @@ public class WolfSSLServerSocketImpl extends SSLServerSocket {
 	@Override
 	public Socket accept() throws IOException {
 		// Create a new socket
-		WolfSSLSocketImpl s = new WolfSSLSocketImpl(context, false);
+		WolfSSLSocketImpl s = new WolfSSLSocketImpl(context, false, sslParameters);
 		// use this implementation to accept the socket
 		implAccept(s);
 		s.doneConnect();
@@ -83,87 +92,85 @@ public class WolfSSLServerSocketImpl extends SSLServerSocket {
 	}
 
 	@Override
-	public String[] getEnabledCipherSuites() {
-		assert(WolfSSLContextImpl.defaultServerSSLParams != null);
+	public SSLParameters getSSLParameters() {
+		assert (sslParameters != null);
 		
-		return WolfSSLContextImpl.defaultServerSSLParams.getCipherSuites();
+		return sslParameters;
+	}
+
+	@Override
+	public String[] getEnabledCipherSuites() {
+		assert (sslParameters != null);
+
+		return sslParameters.getCipherSuites();
 	}
 
 	@Override
 	public void setEnabledCipherSuites(String[] suites) {
-		// TODO
+		assert (sslParameters != null);
+		
+		sslParameters.setCipherSuites(suites);
 	}
 
 	@Override
 	public String[] getSupportedCipherSuites() {
-		assert(WolfSSLContextImpl.defaultServerSSLParams != null);
-		
 		return WolfSSLContextImpl.defaultServerSSLParams.getCipherSuites();
 	}
 
 	@Override
 	public String[] getSupportedProtocols() {
-		assert(WolfSSLContextImpl.defaultServerSSLParams != null);
-		
 		return WolfSSLContextImpl.defaultServerSSLParams.getProtocols();
 	}
 
 	@Override
 	public String[] getEnabledProtocols() {
-		assert(WolfSSLContextImpl.defaultServerSSLParams != null);
+		assert (sslParameters != null);
 		
-		return WolfSSLContextImpl.defaultServerSSLParams.getProtocols();
+		return sslParameters.getProtocols();
 	}
 
 	@Override
 	public void setEnabledProtocols(String[] protocols) {
-
+		logger.warn("Unsupported operation 'setEnabledProtocols(String[] protocols)' invoked!");
 	}
 
 	@Override
 	public void setNeedClientAuth(boolean need) {
-		// TODO Auto-generated method stub
-
+		logger.warn("Unsupported operation 'setNeedClientAuth(boolean need)' invoked!");
 	}
 
 	@Override
 	public boolean getNeedClientAuth() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void setWantClientAuth(boolean want) {
-		// TODO Auto-generated method stub
-
+		logger.warn("Unsupported operation 'setWantClientAuth(boolean want)' invoked!");
 	}
 
 	@Override
 	public boolean getWantClientAuth() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void setUseClientMode(boolean mode) {
-		// TODO Auto-generated method stub
-
+		logger.warn("Unsupported operation 'setUseClientMode(boolean mode)' invoked!");
 	}
 
 	@Override
 	public boolean getUseClientMode() {
-		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
 	public void setEnableSessionCreation(boolean flag) {
-		// TODO Auto-generated method stub
-
+		logger.warn("Unsupported operation 'setEnableSessionCreation(boolean flag)' invoked!");
 	}
 
 	@Override
 	public boolean getEnableSessionCreation() {
-		return true;
+		return false;
 	}
 }

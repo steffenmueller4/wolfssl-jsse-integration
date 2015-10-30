@@ -16,6 +16,14 @@ class WolfSSLCipherSuite {
 	 * The wolfSSL cipher suite string.
 	 */
 	final String wolfSSLString;
+	/**
+	 * 
+	 */
+	final boolean enabled;
+	/**
+	 * 
+	 */
+	final int rank;
 
 	/**
 	 * The constructor.
@@ -28,6 +36,22 @@ class WolfSSLCipherSuite {
 	public WolfSSLCipherSuite(String javaString, String openSSLString) {
 		this.javaString = javaString;
 		this.wolfSSLString = openSSLString;
+		this.enabled = true;
+		this.rank = 0;
+	}
+	
+	public WolfSSLCipherSuite(String javaString, String openSSLString, int rank) {
+		this.javaString = javaString;
+		this.wolfSSLString = openSSLString;
+		this.enabled = true;
+		this.rank = rank;
+	}
+	
+	public WolfSSLCipherSuite(String javaString, String openSSLString, int rank, boolean enabled) {
+		this.javaString = javaString;
+		this.wolfSSLString = openSSLString;
+		this.enabled = enabled;
+		this.rank = rank;
 	}
 
 	@Override

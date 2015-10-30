@@ -94,8 +94,8 @@ public final class WolfSSLContextImpl extends SSLContextSpi {
 
 	static {
 		defaultServerSSLParams = new SSLParameters();
-		defaultServerSSLParams.setProtocols(new String[] { "TLSv1.2" });
-		defaultServerSSLParams.setCipherSuites(WolfSSLCipherSuiteList.getJavaCipherSuiteList());
+		defaultServerSSLParams.setProtocols(new String[] { Constants.TLS_VERSION_12 });
+		defaultServerSSLParams.setCipherSuites(new String[]{"TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA"});
 
 		try {
 			System.out.println("Loading wolfSSL library...");
@@ -131,14 +131,14 @@ public final class WolfSSLContextImpl extends SSLContextSpi {
 		if (logger.isInfoEnabled()) {
 			int ret = WolfSSL.debuggingON();
 			if (ret == WolfSSL.SSL_SUCCESS) {
-				loggingCallback = new LoggingCallback();
-				WolfSSL.setLoggingCb(loggingCallback);
-
 				logger.info("Debug logging enabled.");
 			} else if (ret == WolfSSL.NOT_COMPILED_IN)
 				logger.info("WolfSSL has been compiled without debug logging.");
 			else
 				logger.error("Could not enable debug logging!");
+			
+			loggingCallback = new LoggingCallback();
+			WolfSSL.setLoggingCb(loggingCallback);
 		}
 
 		// Get the keystore and truststore
@@ -244,11 +244,18 @@ public final class WolfSSLContextImpl extends SSLContextSpi {
 
 	@Override
 	protected SSLSessionContext engineGetServerSessionContext() {
+		logger.error("Method 'engineGetServerSessionContext()' not yet implemented!");
 		return null;
 	}
 
 	@Override
 	protected SSLSessionContext engineGetClientSessionContext() {
+		logger.error("Method 'engineGetClientSessionContext()' not yet implemented!");
 		return null;
+	}
+
+	@Override
+	protected SSLParameters engineGetDefaultSSLParameters() {
+		return defaultServerSSLParams;
 	}
 }

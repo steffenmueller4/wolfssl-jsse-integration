@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.net.ssl.HandshakeCompletedListener;
+import javax.net.ssl.SSLParameters;
 import javax.net.ssl.SSLSession;
 
 import org.slf4j.Logger;
@@ -58,6 +59,10 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 	 * The JSSE session implementation.
 	 */
 	private WolfSSLSessionImpl jsseSession;
+	/**
+	 * The sslParameters.
+	 */
+	private SSLParameters sslParameters = WolfSSLContextImpl.defaultServerSSLParams;
 
 	/**
 	 * Constructor.
@@ -89,7 +94,7 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 	}
 
 	/**
-	 * Constructor.
+	 * Constructor used by serverSocket.accept().
 	 * 
 	 * @param context
 	 *            The {@link WolfSSLContextImpl}.
@@ -97,11 +102,12 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 	 * @param socket_t
 	 * @throws IOException
 	 */
-	WolfSSLSocketImpl(WolfSSLContext context, boolean clientMode) throws IOException {
+	WolfSSLSocketImpl(WolfSSLContext context, boolean clientMode, SSLParameters sslParameters) throws IOException {
 		super();
 		this.context = context;
 		this.clientMode = clientMode;
 		this.jsseSession = new WolfSSLSessionImpl(this);
+		this.sslParameters = sslParameters;
 
 		assert (context != null);
 		assert (jsseSession != null);
@@ -143,7 +149,7 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 	 */
 	public WolfSSLSocketImpl(WolfSSLContext context, boolean clientMode, String host, int port, InetAddress localHost,
 			int localPort) throws IOException {
-		this(context, clientMode);
+		this(context, clientMode, WolfSSLContextImpl.defaultServerSSLParams);
 
 		bind(new InetSocketAddress(localHost, localPort));
 
@@ -164,13 +170,22 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 		appOutputStream = new WolfSSLAppOutputStream(this);
 		appInputStream = new WolfSSLAppInputStream(this);
 
+		assert (appOutputStream != null);
+		assert (appInputStream != null);
 		assert (context != null);
 		assert (appInputStream != null);
 		assert (appOutputStream != null);
 		assert (jsseSession != null);
+		assert (sslParameters != null);
 
 		try {
+			// Set the enabled cipher suites
+			String list = WolfSSLCipherSuiteList.getWolfSSLCipherSuiteList(sslParameters.getCipherSuites());
+			context.setCipherList(list);
+
+			// Create a new session
 			session = new WolfSSLSession(context);
+			session.setCipherList(list);
 		} catch (WolfSSLException e) {
 			throw new IOException("Cannot create session: " + e.getMessage());
 		}
@@ -183,6 +198,7 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 			throw new IOException("failed to disable CRL check");
 		}
 
+		// Set the file descriptor
 		ret = session.setFd(this);
 		if (ret != WolfSSL.SSL_SUCCESS) {
 			throw new IOException("Failed to set file descriptor");
@@ -270,28 +286,27 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 
 	@Override
 	public String[] getEnabledCipherSuites() {
-		assert (session != null);
+		assert (sslParameters != null);
 
-		String c = session.cipherGetName();
-		return WolfSSLCipherSuiteList.getJavaCipherSuiteList(c);
+		return sslParameters.getCipherSuites();
 	}
 
 	@Override
 	public void setEnabledCipherSuites(String[] suites) {
-		assert (session != null);
+		assert (sslParameters != null);
 
-		session.setCipherList(WolfSSLCipherSuiteList.getWolfSSLCipherSuiteList(suites));
+		sslParameters.setCipherSuites(suites);
 	}
 
 	@Override
 	public String[] getSupportedProtocols() {
-		assert (WolfSSLContextImpl.defaultServerSSLParams != null);
-
 		return WolfSSLContextImpl.defaultServerSSLParams.getProtocols();
 	}
 
 	@Override
 	public String[] getEnabledProtocols() {
+		assert (session != null);
+
 		List<String> enabled = new ArrayList<String>();
 		enabled.add(session.getVersion());
 
@@ -305,19 +320,21 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 
 	@Override
 	public SSLSession getSession() {
+		assert (jsseSession != null);
+
 		return jsseSession;
 	}
 
 	@Override
 	public void addHandshakeCompletedListener(HandshakeCompletedListener listener) {
-		// TODO Auto-generated method stub
-
+		logger.warn(
+				"Unsupported operation 'addHandshakeCompletedListener(HandshakeCompletedListener listener)' invoked!");
 	}
 
 	@Override
 	public void removeHandshakeCompletedListener(HandshakeCompletedListener listener) {
-		// TODO Auto-generated method stub
-
+		logger.warn(
+				"Unsupported operation 'removeHandshakeCompletedListener(HandshakeCompletedListener listener)' invoked!");
 	}
 
 	@Override
@@ -363,5 +380,12 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 	@Override
 	public boolean getEnableSessionCreation() {
 		return false;
+	}
+
+	@Override
+	public SSLParameters getSSLParameters() {
+		assert (sslParameters != null);
+
+		return sslParameters;
 	}
 }
