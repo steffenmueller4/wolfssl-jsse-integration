@@ -45,71 +45,12 @@ public class WolfSSLAppInputStream extends InputStream {
 		}
 
 		// Invoke the other read method
-		int n = read(oneByte);
+		int n = sslSocket.read(oneByte, 1);
 		if (n <= 0) {
 			// EOF
 			return -1;
 		}
 		return oneByte[0] & 0xff;
-	}
-
-	@Override
-	public int read(byte[] b) throws IOException {
-		if (sslSocket.isClosed() || !sslSocket.isConnected() || sslSocket.isInputShutdown()) {
-			throw new IOException("read on a closed InputStream");
-		}
-
-		// Invoke the other read method
-		return sslSocket.read(b, b.length);
-	}
-
-	@Override
-	public int read(byte[] b, int off, int len) throws IOException {
-		if (sslSocket.isClosed() || !sslSocket.isConnected() || sslSocket.isInputShutdown()) {
-			throw new IOException("read on a closed InputStream");
-		}
-
-		// Check the input
-		if (b == null) {
-			throw new NullPointerException();
-		} else if (off < 0 || len < 0 || len > b.length - off) {
-			throw new IndexOutOfBoundsException();
-		} else if (len == 0) {
-			return 0;
-		}
-
-		// Check assertions
-		assert len > 0 && b.length > 0 && off >= 0 && (off + len) <= b.length;
-
-		// Read the bytes from the byte buffer in the socket impl
-		byte[] b2 = new byte[len];
-		int r = read(b2);
-
-		System.arraycopy(b2, 0, b, off, len);
-
-		if (logger.isDebugEnabled())
-			logger.debug("Read bytes b={}, off={}, len={}.", b, off, len);
-
-		return r;
-	}
-
-	@Override
-	public long skip(long n) throws IOException {
-		if (sslSocket.isClosed() || !sslSocket.isConnected() || sslSocket.isInputShutdown()) {
-			throw new IOException("skip on a closed InputStream");
-		}
-
-		// Check the input
-		if (n <= 0) {
-			return 0;
-		}
-
-		if (logger.isDebugEnabled())
-			logger.debug("Skipping {} bytes.", n);
-
-		int nInt = (int) n;
-		byte[] b = new byte[nInt];
-		return sslSocket.read(b, nInt);
 	}
 
 	@Override

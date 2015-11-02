@@ -23,6 +23,10 @@ public class WolfSSLAppOutputStream extends OutputStream {
 	 * The logger.
 	 */
 	private final Logger logger = LoggerFactory.getLogger(WolfSSLAppOutputStream.class);
+	/**
+	 * A byte array with the length = 1.
+	 */
+	private final byte[] oneByte = new byte[1];
 
 	/**
 	 * Constructor.
@@ -39,45 +43,12 @@ public class WolfSSLAppOutputStream extends OutputStream {
 		if (sslSocket.isClosed() || !sslSocket.isConnected() || sslSocket.isOutputShutdown()) {
 			throw new IOException("write to a closed InputStream");
 		}
-
-		byte[] onebyte = new byte[1];
-		onebyte[0] = (byte) b;
-		// Invoke the other write method
-		write(onebyte);
-	}
-
-	@Override
-	public void write(byte[] b) throws IOException {
-		if (sslSocket.isClosed() || !sslSocket.isConnected() || sslSocket.isOutputShutdown()) {
-			throw new IOException("write to a closed InputStream");
-		}
-		if (b == null)
-			throw new NullPointerException();
-
-		sslSocket.write(b, b.length);
-	}
-
-	@Override
-	public void write(byte[] b, int off, int len) throws IOException {
-		if (sslSocket.isClosed() || !sslSocket.isConnected() || sslSocket.isOutputShutdown()) {
-			throw new IOException("write to a closed InputStream");
-		}
-		// Check the input
-		if (b == null) {
-			throw new NullPointerException();
-		} else if (off < 0 || len < 0 || len > b.length - off) {
-			throw new IndexOutOfBoundsException();
-		} else if (len == 0) {
-			return;
-		}
-
-		if (logger.isDebugEnabled())
-			logger.debug("Write b={}, off={}, len={}.", b, off, len);
-
-		byte[] b2 = new byte[len];
-		sslSocket.write(b2, len);
-
-		System.arraycopy(b2, 0, b, off, len);
+		
+		// Put the int into the byte array
+		oneByte[0] = (byte) b;
+		
+		// Write to the sslSocket
+		sslSocket.write(oneByte, 1);
 	}
 
 	@Override
