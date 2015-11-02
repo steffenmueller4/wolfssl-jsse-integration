@@ -197,6 +197,7 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 		if (ret != WolfSSL.SSL_SUCCESS) {
 			throw new IOException("failed to disable CRL check");
 		}
+		logger.warn("CRL is disabled, as this library is a research project. This is a security issue!!!");
 
 		// Set the file descriptor
 		ret = session.setFd(this);

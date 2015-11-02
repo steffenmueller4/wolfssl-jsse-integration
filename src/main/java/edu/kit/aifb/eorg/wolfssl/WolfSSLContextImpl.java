@@ -122,7 +122,8 @@ public final class WolfSSLContextImpl extends SSLContextSpi {
 
 		engineInit(null, null, null);
 
-		logger.info("AtlasOpenSSLContextImpl created.");
+		logger.info("WolfSSL Environment created.");
+		logger.warn("DO NOT USE THIS LIBRARY IN PRODUCTION ENVIRONMENTS!!!");
 	}
 
 	@Override
