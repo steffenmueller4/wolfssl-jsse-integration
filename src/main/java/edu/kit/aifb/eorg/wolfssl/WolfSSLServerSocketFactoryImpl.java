@@ -6,6 +6,9 @@ import java.net.ServerSocket;
 
 import javax.net.ssl.SSLServerSocketFactory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.wolfssl.WolfSSLContext;
 
 /**
@@ -20,6 +23,10 @@ public class WolfSSLServerSocketFactoryImpl extends SSLServerSocketFactory {
 	 * The SSL context implementation.
 	 */
 	private final WolfSSLContext context;
+	/**
+	 * The logger.
+	 */
+	private final Logger logger = LoggerFactory.getLogger(WolfSSLServerSocketFactoryImpl.class);
 
 	/**
 	 * Constructor.
@@ -29,6 +36,7 @@ public class WolfSSLServerSocketFactoryImpl extends SSLServerSocketFactory {
 	 */
 	WolfSSLServerSocketFactoryImpl(WolfSSLContext context) {
 		this.context = context;
+		logger.debug("WolfSSLServerSocketFactoryImpl created.");
 	}
 
 	@Override

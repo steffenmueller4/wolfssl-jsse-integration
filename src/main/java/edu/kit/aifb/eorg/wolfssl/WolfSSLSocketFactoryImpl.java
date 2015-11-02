@@ -7,6 +7,9 @@ import java.net.UnknownHostException;
 
 import javax.net.ssl.SSLSocketFactory;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.wolfssl.WolfSSLContext;
 
 /**
@@ -21,6 +24,10 @@ public class WolfSSLSocketFactoryImpl extends SSLSocketFactory {
 	 * The SSLContext implementation.
 	 */
 	private final WolfSSLContext context;
+	/**
+	 * The logger.
+	 */
+	private final Logger logger = LoggerFactory.getLogger(WolfSSLSocketFactoryImpl.class);
 
 	/**
 	 * Constructor.
@@ -30,6 +37,7 @@ public class WolfSSLSocketFactoryImpl extends SSLSocketFactory {
 	 */
 	WolfSSLSocketFactoryImpl(WolfSSLContext context) {
 		this.context = context;
+		logger.debug("WolfSSLSocketFactoryImpl created.");
 	}
 
 	@Override

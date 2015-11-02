@@ -180,20 +180,25 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 
 		try {
 			// Set the enabled cipher suites
-			String list = WolfSSLCipherSuiteList.getWolfSSLCipherSuiteList(sslParameters.getCipherSuites());
-			context.setCipherList(list);
+//			String list = WolfSSLCipherSuiteList.getWolfSSLCipherSuiteList(sslParameters.getCipherSuites());
 
 			// Create a new session
 			session = new WolfSSLSession(context);
-			session.setCipherList(list);
+//			session.setCipherList(list);
 		} catch (WolfSSLException e) {
 			throw new IOException("Cannot create session: " + e.getMessage());
 		}
+		
+		logger.debug("Session created.");
 
 		assert (session != null);
 
 		// TODO: Fix it for production!
 		int ret = session.disableCRL();
+		if (ret != WolfSSL.SSL_SUCCESS) {
+			throw new IOException("failed to disable CRL check");
+		}
+		ret = context.disableCRL();
 		if (ret != WolfSSL.SSL_SUCCESS) {
 			throw new IOException("failed to disable CRL check");
 		}
@@ -204,16 +209,23 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 		if (ret != WolfSSL.SSL_SUCCESS) {
 			throw new IOException("Failed to set file descriptor");
 		}
+		logger.debug("setFd successful.");
 
-		if (clientMode)
+		if (clientMode){
 			ret = session.connect();
-		else
+		} else {
 			ret = session.accept();
+		}
 		if (ret != WolfSSL.SSL_SUCCESS) {
 			int err = session.getError(ret);
 			String errString = WolfSSL.getErrorString(err);
 			throw new IOException("wolfSSL_connect failed. err = " + err + ", " + errString);
 		}
+		
+		if(clientMode)
+			logger.debug("client doneConnect() successful.");
+		else
+			logger.debug("server doneConnect() successful.");
 	}
 
 	/**
