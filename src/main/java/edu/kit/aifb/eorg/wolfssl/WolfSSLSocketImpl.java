@@ -178,18 +178,20 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 		assert (jsseSession != null);
 		assert (sslParameters != null);
 
-		// Set the enabled cipher suites to the context
+		// Get the enabled cipher suites
 		String list = WolfSSLCipherSuiteList.getWolfSSLCipherSuiteList(sslParameters.getCipherSuites());
-		int ret = context.setCipherList(list);
-		if (ret != WolfSSL.SSL_SUCCESS) {
-			logger.error("Could not set cipher suite list!");
-		} else {
-			logger.debug("setCipherList({}) successful.", list);
-		}
+		logger.debug("List of enabled cipher suites: {}", list);
 
 		try {
 			// Create a new session
 			session = new WolfSSLSession(context);
+			
+			int ret = session.setCipherList(list);
+			if (ret != WolfSSL.SSL_SUCCESS) {
+				logger.error("Could not set cipher suite list!");
+			} else {
+				logger.debug("setCipherList({}) successful.", list);
+			}
 		} catch (WolfSSLException e) {
 			throw new IOException("Cannot create session: " + e.getMessage());
 		}
@@ -199,7 +201,7 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 		assert (session != null);
 
 		// TODO: Fix it for production!
-		ret = session.disableCRL();
+		int ret = session.disableCRL();
 		if (ret != WolfSSL.SSL_SUCCESS) {
 			throw new IOException("failed to disable CRL check");
 		}

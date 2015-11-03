@@ -5,8 +5,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
@@ -32,7 +30,7 @@ public class SendReceiveWithDifferentCipherSuite extends SSLSocketTestBase {
 	private final int serverPort = 11111;
 	private final String sendMsg = "I am a message to send.";
 	private final String receiveMsg = "I am a message to receive.";
-	private static final String[] CIPHER_SUITES = new String[]{"TLS_RSA_WITH_HC_128_SHA"};
+	private static final String[] CIPHER_SUITES = new String[]{"TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256", "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256"};
 
 	@Test
 	public void sendReceiveWithDifferentCipherSuites()
