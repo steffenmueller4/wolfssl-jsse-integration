@@ -179,22 +179,33 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 		assert (sslParameters != null);
 
 		try {
-			// Set the enabled cipher suites
-//			String list = WolfSSLCipherSuiteList.getWolfSSLCipherSuiteList(sslParameters.getCipherSuites());
-
 			// Create a new session
 			session = new WolfSSLSession(context);
-//			session.setCipherList(list);
 		} catch (WolfSSLException e) {
 			throw new IOException("Cannot create session: " + e.getMessage());
 		}
-		
+
 		logger.debug("Session created.");
 
 		assert (session != null);
 
+		// Set the enabled cipher suites
+		String list = WolfSSLCipherSuiteList.getWolfSSLCipherSuiteList(sslParameters.getCipherSuites());
+		int ret = session.setCipherList(list);
+		if (ret != WolfSSL.SSL_SUCCESS) {
+			logger.error("Could not set cipher suite list!");
+		} else {
+			logger.debug("setCipherList({}) successful.", list);
+		}
+		ret = context.setCipherList(list);
+		if (ret != WolfSSL.SSL_SUCCESS) {
+			logger.error("Could not set cipher suite list!");
+		} else {
+			logger.debug("setCipherList({}) successful.", list);
+		}
+
 		// TODO: Fix it for production!
-		int ret = session.disableCRL();
+		ret = session.disableCRL();
 		if (ret != WolfSSL.SSL_SUCCESS) {
 			throw new IOException("failed to disable CRL check");
 		}
@@ -211,7 +222,7 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 		}
 		logger.debug("setFd successful.");
 
-		if (clientMode){
+		if (clientMode) {
 			ret = session.connect();
 		} else {
 			ret = session.accept();
@@ -221,8 +232,8 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 			String errString = WolfSSL.getErrorString(err);
 			throw new IOException("wolfSSL_connect failed. err = " + err + ", " + errString);
 		}
-		
-		if(clientMode)
+
+		if (clientMode)
 			logger.debug("client doneConnect() successful.");
 		else
 			logger.debug("server doneConnect() successful.");

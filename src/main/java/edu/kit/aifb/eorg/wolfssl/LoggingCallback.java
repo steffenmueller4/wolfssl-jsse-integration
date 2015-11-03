@@ -22,12 +22,18 @@ class LoggingCallback implements WolfSSLLoggingCallback {
 	 * Indicates whether the info log level is enabled.
 	 */
 	public final boolean isInfoEnabled = logger.isInfoEnabled();
+	/**
+	 * Indicates whether the info log level is enabled.
+	 */
+	public final boolean isDebugEnabled = logger.isDebugEnabled();
 
 	/**
 	 * Logging callback method.
 	 */
 	public void loggingCallback(int logLevel, String logMessage) {
-		if (isInfoEnabled)
-			logger.info("LogLevel {}: {}", logLevel, logMessage);
+		if (logLevel == 1 && isInfoEnabled)
+			logger.info("{}", logMessage);
+		if (logLevel > 1 && isDebugEnabled)
+			logger.debug("{}", logMessage);
 	}
 }

@@ -91,6 +91,7 @@ public final class WolfSSLContextImpl extends SSLContextSpi {
 	 */
 	@SuppressWarnings("unused")
 	private String truststorePassword;
+	private static boolean printedWarnings = false;
 
 	static {
 		defaultServerSSLParams = new SSLParameters();
@@ -122,13 +123,18 @@ public final class WolfSSLContextImpl extends SSLContextSpi {
 
 		engineInit(null, null, null);
 
-		logger.info("WolfSSL Environment created.");
-		logger.warn("DO NOT USE THIS LIBRARY IN PRODUCTION ENVIRONMENTS!!!");
+		if (printedWarnings) {
+			logger.warn(
+					"DO NOT USE THIS LIBRARY IN PRODUCTION ENVIRONMENTS!!! THIS LIBRARY COULD CONTAIN SECURITY ISSUES!!!");
+		}
+
+		printedWarnings = true;
+		logger.debug("WolfSSL Environment created.");
 	}
 
 	@Override
 	protected void engineInit(KeyManager[] km, TrustManager[] tm, SecureRandom sr) throws KeyManagementException {
-		// Initialize logging and debugging
+		// Initialize debugging
 		if (logger.isDebugEnabled()) {
 			int ret = WolfSSL.debuggingON();
 			if (ret == WolfSSL.SSL_SUCCESS) {
@@ -137,7 +143,9 @@ public final class WolfSSLContextImpl extends SSLContextSpi {
 				logger.debug("WolfSSL has been compiled without debug logging.");
 			else
 				logger.error("Could not enable debug logging!");
-			
+		}
+		// Initialize logging
+		if (logger.isDebugEnabled() || logger.isInfoEnabled()) {
 			loggingCallback = new LoggingCallback();
 			WolfSSL.setLoggingCb(loggingCallback);
 		}
@@ -193,7 +201,7 @@ public final class WolfSSLContextImpl extends SSLContextSpi {
 
 			// Set verify callback to No Verification (Default)
 			context.setVerify(WolfSSL.SSL_VERIFY_NONE, null);
-			
+
 			logger.debug("engineGetSocketFactory() complete. Creating a socket factory now.");
 
 			return new WolfSSLSocketFactoryImpl(context);
@@ -227,7 +235,7 @@ public final class WolfSSLContextImpl extends SSLContextSpi {
 			context.setVerify(WolfSSL.SSL_VERIFY_NONE, null);
 
 			logger.debug("engineGetServerSocketFactory() complete. Creating a server socket factory now.");
-			
+
 			return new WolfSSLServerSocketFactoryImpl(context);
 		} catch (Exception e) {
 			logger.error("Could not return server socket factory!", e);

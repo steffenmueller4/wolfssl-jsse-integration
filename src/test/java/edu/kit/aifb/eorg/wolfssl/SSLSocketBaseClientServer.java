@@ -48,7 +48,7 @@ abstract class SSLSocketBaseClientServer extends Thread implements HandshakeComp
 	/**
 	 * The SSLContext.
 	 */
-	protected SSLContext sslContext;
+	SSLContext sslContext;
 	/**
 	 * The handshake listener.
 	 */
@@ -68,7 +68,7 @@ abstract class SSLSocketBaseClientServer extends Thread implements HandshakeComp
 	/**
 	 * The {@link SSLSocket}.
 	 */
-	protected SSLSocket sslSocket;
+	SSLSocket sslSocket;
 
 	/**
 	 * Constructor.

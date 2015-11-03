@@ -18,7 +18,7 @@ abstract class SSLSocketTestServer extends SSLSocketBaseClientServer {
 	/**
 	 * The server socket.
 	 */
-	protected SSLServerSocket sslServerSocket;
+	SSLServerSocket sslServerSocket;
 
 	/**
 	 * Constructor.
@@ -57,7 +57,8 @@ abstract class SSLSocketTestServer extends SSLSocketBaseClientServer {
 
 	@Override
 	public void cleanup() throws IOException {
-		// Do nothing
+		if(sslServerSocket != null)
+			sslServerSocket.close();
 	}
 
 }
