@@ -28,5 +28,5 @@ To use the JSSE integration:
    
    However, you have to set the path to JNI native library and the keyStore as well as the trustStore, when starting the Java project:
    -Djava.library.path=<path_to_the_wolfssl_JNI_library> \
-   -Djavax.net.ssl.keyStore=<path_to_the_wolfssl_JNI_library_source_directory>/examples/certs/server-key.pem \
-   -Djavax.net.ssl.trustStore=<path_to_the_wolfssl_JNI_library_source_directory>/examples/certs/server-cert.pem
+   -Dcom.wolfssl.privateKeyFile=<path_to_the_wolfssl_JNI_library_source_directory>/examples/certs/server-key.pem \
+   -Dcom.wolfssl.certificateFile=<path_to_the_wolfssl_JNI_library_source_directory>/examples/certs/server-cert.pem
