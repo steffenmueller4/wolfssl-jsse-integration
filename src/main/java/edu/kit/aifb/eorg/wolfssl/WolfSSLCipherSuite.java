@@ -39,14 +39,14 @@ class WolfSSLCipherSuite {
 		this.enabled = true;
 		this.rank = 0;
 	}
-	
+
 	public WolfSSLCipherSuite(String javaString, String openSSLString, int rank) {
 		this.javaString = javaString;
 		this.wolfSSLString = openSSLString;
 		this.enabled = true;
 		this.rank = rank;
 	}
-	
+
 	public WolfSSLCipherSuite(String javaString, String openSSLString, int rank, boolean enabled) {
 		this.javaString = javaString;
 		this.wolfSSLString = openSSLString;

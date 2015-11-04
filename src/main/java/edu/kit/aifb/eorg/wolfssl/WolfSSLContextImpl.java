@@ -66,31 +66,35 @@ public final class WolfSSLContextImpl extends SSLContextSpi {
 	@SuppressWarnings("unused")
 	private static WolfSSL sslLib;
 	/**
-	 * The keystore file, must be of type DER or PEM, default is PEM.
+	 * The private key file, must be of type DER or PEM, default is PEM.
 	 */
-	private String keystoreFile;
+	private String privateKeyFile;
 	/**
-	 * The file format of the keystore (DER or PEM).
+	 * The file format of the private key file (DER or PEM).
 	 */
-	private KeystoreType keystoreFileFormat = KeystoreType.PEM;
+	private KeystoreType privateKeyFileFormat = KeystoreType.PEM;
 	/**
-	 * The optional keystore password.
+	 * Certification authority file that is used to invoke the
+	 * wolfSSL_CTX_load_verify_locations(WOLFSSL_CTX *ctx, const char *CAfile,
+	 * const char *CApath) function.
 	 */
-	@SuppressWarnings("unused")
-	private String keystorePassword;
+	private String caFile;
 	/**
-	 * The truststore file, must be of type DER or PEM, default is PEM.
+	 * Certificate file that is used to invoke the
+	 * wolfSSL_CTX_use_certificate_file(WOLFSSL_CTX *ctx, const char *CAfile,
+	 * int type) function.
 	 */
-	private String truststoreFile;
+	private String certificateFile;
 	/**
-	 * The file format of the truststore (DER or PEM).
+	 * The certificate file format.
 	 */
-	private KeystoreType truststoreFileFormat = KeystoreType.PEM;
+	private KeystoreType certificateFileFormat = KeystoreType.PEM;
 	/**
-	 * The optional truststore password.
+	 * Certificate chain file that is used to invoke the
+	 * wolfSSL_CTX_use_certificate_chain_file(WOLFSSL_CTX *ctx, const char
+	 * *file) function.
 	 */
-	@SuppressWarnings("unused")
-	private String truststorePassword;
+	private String certificateChainFile;
 	private static boolean printedWarnings = false;
 
 	static {
@@ -151,25 +155,47 @@ public final class WolfSSLContextImpl extends SSLContextSpi {
 		}
 
 		// Get the keystore and truststore
-		keystoreFile = System.getProperty(Constants.JAVAX_NET_SSL_KEY_STORE);
-		keystorePassword = System.getProperty(Constants.JAVAX_NET_SSL_KEY_STORE_PASSWORD);
-		truststoreFile = System.getProperty(Constants.JAVAX_NET_SSL_TRUST_STORE);
-		truststorePassword = System.getProperty(Constants.JAVAX_NET_SSL_TRUST_STORE_PASSWORD);
+		privateKeyFile = System.getProperty(Constants.COM_WOLFSSL_PRIVATE_KEY_FILE_PROPERTY);
+		caFile = System.getProperty(Constants.COM_WOLFSSL_VERIFY_LOCATIONS_PROPERTY);
+		certificateFile = System.getProperty(Constants.COM_WOLFSSL_CERTIFICATE_FILE_PROPERTY);
+		certificateChainFile = System.getProperty(Constants.COM_WOLFSSL_CERTIFICATE_CHAIN_FILE_PROPERTY);
 
-		if (keystoreFile == null || keystoreFile.isEmpty())
+		// The private key file must be set!
+		if (privateKeyFile == null || privateKeyFile.isEmpty())
 			throw new KeyManagementException(
-					"Keystore must be specified via '" + Constants.JAVAX_NET_SSL_KEY_STORE + "'");
-		if (truststoreFile == null || truststoreFile.isEmpty())
-			throw new KeyManagementException(
-					"Truststore must be specified via '" + Constants.JAVAX_NET_SSL_TRUST_STORE + "'");
+					"Private key file must be specified via '" + Constants.COM_WOLFSSL_PRIVATE_KEY_FILE_PROPERTY + "'");
 
-		if (keystoreFile.endsWith(".der"))
-			keystoreFileFormat = KeystoreType.DER;
-		if (truststoreFile.endsWith(".der"))
-			truststoreFileFormat = KeystoreType.DER;
+		// Either the certificate file or the certificate chain file must be
+		// set!
+		if ((certificateFile == null || certificateFile.isEmpty())
+				&& (certificateChainFile == null || certificateChainFile.isEmpty()))
+			throw new KeyManagementException("Either the certificate file property ('"
+					+ Constants.COM_WOLFSSL_CERTIFICATE_FILE_PROPERTY + "') or the certificate chain file property ('"
+					+ Constants.COM_WOLFSSL_CERTIFICATE_CHAIN_FILE_PROPERTY + "') must be set!");
 
-		assert (keystoreFile != null && !keystoreFile.isEmpty());
-		assert (truststoreFile != null && !truststoreFile.isEmpty());
+		// Check the file extension of the private key file
+		if (privateKeyFile.endsWith(Constants.DER_FILE_EXTENSION))
+			privateKeyFileFormat = KeystoreType.DER;
+
+		// Check the file extension of the certificate file
+		if (certificateFile != null && certificateFile.endsWith(Constants.DER_FILE_EXTENSION))
+			certificateFileFormat = KeystoreType.DER;
+
+		// Check the file extension of the certificate chain file; must be a
+		// .pem file
+		if (certificateChainFile != null && certificateChainFile.endsWith(Constants.DER_FILE_EXTENSION))
+			throw new KeyManagementException("Certificate chain file specified by '"
+					+ Constants.COM_WOLFSSL_CERTIFICATE_CHAIN_FILE_PROPERTY + "' must be a .pem file!");
+
+		// Check the file extension of the ca file; must be a .pem file
+		if (caFile != null && caFile.endsWith(Constants.DER_FILE_EXTENSION))
+			throw new KeyManagementException("Certification authority file specified by '"
+					+ Constants.COM_WOLFSSL_VERIFY_LOCATIONS_PROPERTY + "' must be a .pem file!");
+
+		// Check assertions
+		assert (privateKeyFile != null && !privateKeyFile.isEmpty());
+		assert ((certificateFile != null && !certificateFile.isEmpty())
+				|| (certificateChainFile != null && !certificateChainFile.isEmpty()));
 
 		logger.debug("engineInit(...) complete");
 
@@ -182,25 +208,14 @@ public final class WolfSSLContextImpl extends SSLContextSpi {
 			throw new IllegalStateException("Context is not initialized!");
 		}
 
-		assert (keystoreFile != null && !keystoreFile.isEmpty());
-		assert (truststoreFile != null && !truststoreFile.isEmpty());
+		assert (isInitialized);
+		assert (privateKeyFile != null && !privateKeyFile.isEmpty());
+		assert ((certificateFile != null && !certificateFile.isEmpty())
+				|| (certificateChainFile != null && !certificateChainFile.isEmpty()));
 
 		try {
 			// create the context, where we only allow TLSv1.2
-			WolfSSLContext context = new WolfSSLContext(WolfSSL.TLSv1_2_ClientMethod());
-			/* load certificate files */
-			int ret = context.useCertificateFile(truststoreFile, truststoreFileFormat.toValue());
-			if (ret != WolfSSL.SSL_SUCCESS) {
-				throw new KeyManagementException("failed to load client certificate!");
-			}
-
-			ret = context.usePrivateKeyFile(keystoreFile, keystoreFileFormat.toValue());
-			if (ret != WolfSSL.SSL_SUCCESS) {
-				throw new KeyManagementException("Failed to load private key!");
-			}
-
-			// Set verify callback to No Verification (Default)
-			context.setVerify(WolfSSL.SSL_VERIFY_NONE, null);
+			WolfSSLContext context = initContext(new WolfSSLContext(WolfSSL.TLSv1_2_ClientMethod()));
 
 			logger.debug("engineGetSocketFactory() complete. Creating a socket factory now.");
 
@@ -216,23 +231,15 @@ public final class WolfSSLContextImpl extends SSLContextSpi {
 		if (!isInitialized) {
 			throw new IllegalStateException("Context is not initialized!");
 		}
+
+		assert (isInitialized);
+		assert (privateKeyFile != null && !privateKeyFile.isEmpty());
+		assert ((certificateFile != null && !certificateFile.isEmpty())
+				|| (certificateChainFile != null && !certificateChainFile.isEmpty()));
+
 		/* Load Server key and certificate */
 		try {
-			WolfSSLContext context = new WolfSSLContext(WolfSSL.TLSv1_2_ServerMethod());
-
-			/* load certificate files */
-			int ret = context.useCertificateFile(truststoreFile, truststoreFileFormat.toValue());
-			if (ret != WolfSSL.SSL_SUCCESS) {
-				throw new KeyManagementException("failed to load client certificate!");
-			}
-
-			ret = context.usePrivateKeyFile(keystoreFile, keystoreFileFormat.toValue());
-			if (ret != WolfSSL.SSL_SUCCESS) {
-				throw new KeyManagementException("failed to load client private key!");
-			}
-
-			// Set verify callback to No Verification (Default)
-			context.setVerify(WolfSSL.SSL_VERIFY_NONE, null);
+			WolfSSLContext context = initContext(new WolfSSLContext(WolfSSL.TLSv1_2_ServerMethod()));
 
 			logger.debug("engineGetServerSocketFactory() complete. Creating a server socket factory now.");
 
@@ -241,6 +248,46 @@ public final class WolfSSLContextImpl extends SSLContextSpi {
 			logger.error("Could not return server socket factory!", e);
 			throw new IllegalStateException("Context is not initialized!");
 		}
+	}
+
+	private WolfSSLContext initContext(WolfSSLContext context) throws KeyManagementException {
+		// Disable Certificate Revocation List (CRL) feature
+		// TODO: Fix it
+		int ret = context.disableCRL();
+		if (ret != WolfSSL.SSL_SUCCESS) {
+			throw new KeyManagementException("failed to disable certificate revocation list!");
+		}
+		logger.warn("Certificate Revocation List (CRL) feature is disabled, as this is a research prototype!");
+
+		// load certificate files
+		if (certificateChainFile != null) {
+			ret = context.useCertificateChainFile(certificateFile);
+		} else {
+			ret = context.useCertificateFile(certificateFile, certificateFileFormat.toValue());
+		}
+		if (ret != WolfSSL.SSL_SUCCESS) {
+			throw new KeyManagementException("failed to load client certificate!");
+		}
+
+		// Load the private key file
+		ret = context.usePrivateKeyFile(privateKeyFile, privateKeyFileFormat.toValue());
+		if (ret != WolfSSL.SSL_SUCCESS) {
+			throw new KeyManagementException("failed to load private key!");
+		}
+
+		// if the certification authority file is provided, load the file
+		if (caFile != null) {
+			context.loadVerifyLocations(caFile, null);
+			if (ret != WolfSSL.SSL_SUCCESS) {
+				throw new KeyManagementException("failed to load verify locations!");
+			}
+		}
+		// Set verify callback to No Verification (Default)
+		// TODO: Fix it
+		context.setVerify(WolfSSL.SSL_VERIFY_NONE, null);
+		logger.warn("Verification mode for peer certificates is always disabled, as this is a research prototype!");
+
+		return context;
 	}
 
 	@Override

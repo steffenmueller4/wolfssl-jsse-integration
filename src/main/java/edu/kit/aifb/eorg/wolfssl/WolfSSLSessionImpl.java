@@ -29,9 +29,21 @@ final class WolfSSLSessionImpl extends ExtendedSSLSession {
 	 * The logger.
 	 */
 	private final Logger logger = LoggerFactory.getLogger(WolfSSLSessionImpl.class);
+	/**
+	 * The initial creation time.
+	 */
 	private final long creationTime;
+	/**
+	 * The last access to the session.
+	 */
 	private long lastAccess;
+	/**
+	 * The referenced socket.
+	 */
 	private WolfSSLSocketImpl referencedSocket;
+	/**
+	 * The hash table for storing session values.
+	 */
 	private Hashtable<String, Object> values = new Hashtable<>();
 
 	/**

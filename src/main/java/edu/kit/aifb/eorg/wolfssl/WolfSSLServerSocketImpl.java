@@ -23,17 +23,30 @@ import com.wolfssl.WolfSSLContext;
 public class WolfSSLServerSocketImpl extends SSLServerSocket {
 
 	/**
-	 * The default value for backlog.
-	 */
-	private static final int BACKLOG_DEFAULT = 50;
-	/**
 	 * The logger.
 	 */
 	private final Logger logger = LoggerFactory.getLogger(WolfSSLServerSocketImpl.class);
+	/**
+	 * The wolfSSL context.
+	 */
 	private final WolfSSLContext context;
-	private int backlog = BACKLOG_DEFAULT;
+	/**
+	 * Backlog property.
+	 */
+	private int backlog = Constants.BACKLOG_DEFAULT;
+	/**
+	 * SSLParameters.
+	 */
 	private SSLParameters sslParameters = WolfSSLContextImpl.defaultServerSSLParams;
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param context
+	 *            The wolfSSL context.
+	 * @throws IOException
+	 *             If an error occurs.
+	 */
 	WolfSSLServerSocketImpl(WolfSSLContext context) throws IOException {
 		super();
 
@@ -45,14 +58,50 @@ public class WolfSSLServerSocketImpl extends SSLServerSocket {
 		assert (context != null);
 	}
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param context
+	 *            The wolfSSL context.
+	 * @param port
+	 *            The port.
+	 * @param backlog
+	 *            The backlog.
+	 * @throws IOException
+	 *             If an error occurs.
+	 */
 	WolfSSLServerSocketImpl(WolfSSLContext context, int port, int backlog) throws IOException {
 		this(context, port, backlog, null);
 	}
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param context
+	 *            The wolfSSL context.
+	 * @param port
+	 *            The port.
+	 * @throws IOException
+	 *             If an error occurs.
+	 */
 	WolfSSLServerSocketImpl(WolfSSLContext context, int port) throws IOException {
-		this(context, port, BACKLOG_DEFAULT, null);
+		this(context, port, Constants.BACKLOG_DEFAULT, null);
 	}
 
+	/**
+	 * Constructor.
+	 * 
+	 * @param context
+	 *            The wolfSSL context.
+	 * @param port
+	 *            The port.
+	 * @param backlog
+	 *            The backlog.
+	 * @param ifAddress
+	 *            The InetAddress.
+	 * @throws IOException
+	 *             If an error occurs.
+	 */
 	WolfSSLServerSocketImpl(WolfSSLContext context, int port, int backlog, InetAddress ifAddress) throws IOException {
 		this(context);
 
@@ -94,7 +143,7 @@ public class WolfSSLServerSocketImpl extends SSLServerSocket {
 	@Override
 	public SSLParameters getSSLParameters() {
 		assert (sslParameters != null);
-		
+
 		return sslParameters;
 	}
 
@@ -108,7 +157,7 @@ public class WolfSSLServerSocketImpl extends SSLServerSocket {
 	@Override
 	public void setEnabledCipherSuites(String[] suites) {
 		assert (sslParameters != null);
-		
+
 		sslParameters.setCipherSuites(suites);
 	}
 
@@ -125,7 +174,7 @@ public class WolfSSLServerSocketImpl extends SSLServerSocket {
 	@Override
 	public String[] getEnabledProtocols() {
 		assert (sslParameters != null);
-		
+
 		return sslParameters.getProtocols();
 	}
 

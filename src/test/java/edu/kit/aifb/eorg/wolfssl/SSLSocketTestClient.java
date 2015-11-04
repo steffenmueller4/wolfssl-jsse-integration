@@ -16,20 +16,18 @@ import org.slf4j.LoggerFactory;
  *
  */
 abstract class SSLSocketTestClient extends SSLSocketBaseClientServer {
-	
+
 	private final SSLSocketTestServer server;
 	private final Logger logger = LoggerFactory.getLogger(SSLSocketTestClient.class);
 
-	public SSLSocketTestClient(SSLSocketTestServer server, int port,
-			boolean stopOnException, boolean registerHandshakeCompletedListener)
-			throws NoSuchAlgorithmException {
+	public SSLSocketTestClient(SSLSocketTestServer server, int port, boolean stopOnException,
+			boolean registerHandshakeCompletedListener) throws NoSuchAlgorithmException {
 		super("Client", port, stopOnException, registerHandshakeCompletedListener);
 
 		this.server = server;
 	}
 
-	public SSLSocketTestClient(SSLSocketTestServer server, int port,
-			boolean registerHandshakeCompletedListener)
+	public SSLSocketTestClient(SSLSocketTestServer server, int port, boolean registerHandshakeCompletedListener)
 			throws NoSuchAlgorithmException {
 		super("Client", port, false, registerHandshakeCompletedListener);
 
@@ -63,8 +61,7 @@ abstract class SSLSocketTestClient extends SSLSocketBaseClientServer {
 
 	@Override
 	public SSLSocket getSSLSocket() throws IOException {
-		SSLSocketFactory sslsf = (SSLSocketFactory) sslContext
-				.getSocketFactory();
+		SSLSocketFactory sslsf = (SSLSocketFactory) sslContext.getSocketFactory();
 		return (SSLSocket) sslsf.createSocket("localhost", server.port);
 	}
 }

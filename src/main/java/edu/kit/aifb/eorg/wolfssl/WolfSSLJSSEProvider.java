@@ -44,7 +44,9 @@ public final class WolfSSLJSSEProvider extends Provider {
 	 * Info string.
 	 */
 	private static final String INFO = "wolfSSL JSSE provider (TLSv1.2 only)";
-
+	/**
+	 * The version.
+	 */
 	private static final double VERSION = 1.0;
 	/**
 	 * The logger.

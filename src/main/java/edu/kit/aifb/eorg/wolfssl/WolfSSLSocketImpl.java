@@ -90,6 +90,7 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 		SocketAddress socketAddress = host != null ? new InetSocketAddress(host, port)
 				: new InetSocketAddress(InetAddress.getByName(null), port);
 
+		// Connect the socket
 		connect(socketAddress, 0);
 	}
 
@@ -156,6 +157,7 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 		SocketAddress socketAddress = host != null ? new InetSocketAddress(host, port)
 				: new InetSocketAddress(InetAddress.getByName(null), port);
 
+		// Connect the socket
 		connect(socketAddress, 0);
 	}
 
@@ -173,8 +175,6 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 		assert (appOutputStream != null);
 		assert (appInputStream != null);
 		assert (context != null);
-		assert (appInputStream != null);
-		assert (appOutputStream != null);
 		assert (jsseSession != null);
 		assert (sslParameters != null);
 
@@ -185,13 +185,6 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 		try {
 			// Create a new session
 			session = new WolfSSLSession(context);
-			
-			int ret = session.setCipherList(list);
-			if (ret != WolfSSL.SSL_SUCCESS) {
-				logger.error("Could not set cipher suite list!");
-			} else {
-				logger.debug("setCipherList({}) successful.", list);
-			}
 		} catch (WolfSSLException e) {
 			throw new IOException("Cannot create session: " + e.getMessage());
 		}
@@ -199,17 +192,20 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 		logger.debug("Session created.");
 
 		assert (session != null);
+		assert (list != null && !list.isEmpty());
+
+		int ret = session.setCipherList(list);
+		if (ret != WolfSSL.SSL_SUCCESS) {
+			logger.error("setCipherList({}) not successful!", list);
+		} else {
+			logger.debug("setCipherList({}) successful.", list);
+		}
 
 		// TODO: Fix it for production!
-		int ret = session.disableCRL();
+		ret = session.disableCRL();
 		if (ret != WolfSSL.SSL_SUCCESS) {
 			throw new IOException("failed to disable CRL check");
 		}
-		ret = context.disableCRL();
-		if (ret != WolfSSL.SSL_SUCCESS) {
-			throw new IOException("failed to disable CRL check");
-		}
-		logger.warn("CRL is disabled, as this library is a research project. This is a security issue!!!");
 
 		// Set the file descriptor
 		ret = session.setFd(this);
@@ -246,7 +242,7 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 	void write(byte[] buffer, int length) {
 		int sendBytes = session.write(buffer, length);
 
-		assert (sendBytes == length);
+		logger.debug("Written {} bytes of {}.", sendBytes, length);
 	}
 
 	/**
@@ -259,7 +255,11 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 	 * @return The number of bytes read upon success.
 	 */
 	int read(byte[] buffer, int length) {
-		return session.read(buffer, length);
+		int read = session.read(buffer, length);
+
+		logger.debug("Read {} bytes.", read);
+
+		return read;
 	}
 
 	@Override

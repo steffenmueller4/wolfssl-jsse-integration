@@ -30,7 +30,8 @@ public class SendReceiveWithDifferentCipherSuite extends SSLSocketTestBase {
 	private final int serverPort = 11111;
 	private final String sendMsg = "I am a message to send.";
 	private final String receiveMsg = "I am a message to receive.";
-	private static final String[] CIPHER_SUITES = new String[]{"TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256", "TLS_DHE_RSA_WITH_AES_256_CBC_SHA256"};
+	private static final String[] CIPHER_SUITES = new String[] { "TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256",
+			"TLS_DHE_RSA_WITH_AES_256_CBC_SHA256" };
 
 	@Test
 	public void sendReceiveWithDifferentCipherSuites()
@@ -79,11 +80,10 @@ public class SendReceiveWithDifferentCipherSuite extends SSLSocketTestBase {
 
 				assertTrue(Arrays.equals(buffer, sendMsg.getBytes()));
 			}
-			
+
 			@Override
 			public SSLSocket getSSLSocket() throws IOException {
-				SSLSocketFactory sslsf = (SSLSocketFactory) sslContext
-						.getSocketFactory();
+				SSLSocketFactory sslsf = (SSLSocketFactory) sslContext.getSocketFactory();
 				SSLSocket s = (SSLSocket) sslsf.createSocket("localhost", server.port);
 				s.setEnabledCipherSuites(CIPHER_SUITES);
 				return s;
@@ -93,14 +93,14 @@ public class SendReceiveWithDifferentCipherSuite extends SSLSocketTestBase {
 
 		String negClientCipherSuite = client.sslSocket.getSession().getCipherSuite();
 		String negServerCipherSuite = server.sslSocket.getSession().getCipherSuite();
-		
+
 		assertTrue(negClientCipherSuite != null && !negClientCipherSuite.isEmpty());
-		assertTrue(negServerCipherSuite!= null && !negServerCipherSuite.isEmpty());
-		
+		assertTrue(negServerCipherSuite != null && !negServerCipherSuite.isEmpty());
+
 		logger.info("Negotiated cipher suite is : " + negClientCipherSuite);
-		
-		assertTrue(Arrays.equals(CIPHER_SUITES, new String[]{negClientCipherSuite}));
-		assertTrue(Arrays.equals(CIPHER_SUITES, new String[]{negServerCipherSuite}));
+
+		assertTrue(Arrays.equals(CIPHER_SUITES, new String[] { negClientCipherSuite }));
+		assertTrue(Arrays.equals(CIPHER_SUITES, new String[] { negServerCipherSuite }));
 
 		server.join();
 		logger.info("Server joined");

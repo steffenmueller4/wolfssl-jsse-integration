@@ -48,7 +48,7 @@ public class WolfSSLServerSocketFactoryImpl extends SSLServerSocketFactory {
 	public String[] getSupportedCipherSuites() {
 		return WolfSSLContextImpl.defaultServerSSLParams.getCipherSuites();
 	}
-	
+
 	@Override
 	public ServerSocket createServerSocket() throws IOException {
 		return new WolfSSLServerSocketImpl(context);

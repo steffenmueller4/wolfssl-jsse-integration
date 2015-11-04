@@ -17,21 +17,37 @@ class Constants {
 	 */
 	public static final String SSL_CONTEXT_IMPL = WolfSSLContextImpl.class.getName();
 	/**
-	 * System environment variable for the trust store password.
+	 * System environment variable for the
+	 * wolfSSL_CTX_use_certificate_file(WOLFSSL_CTX *ctx, const char *CAfile,
+	 * int type) function.
 	 */
-	public static final String JAVAX_NET_SSL_TRUST_STORE_PASSWORD = "javax.net.ssl.trustStorePassword";
+	public static final String COM_WOLFSSL_CERTIFICATE_FILE_PROPERTY = "com.wolfssl.certificateFile";
 	/**
-	 * System environment variable for the key store password.
+	 * System environment variable for the
+	 * wolfSSL_CTX_use_certificate_chain_file(WOLFSSL_CTX *ctx, const char
+	 * *file) function.
 	 */
-	public static final String JAVAX_NET_SSL_KEY_STORE_PASSWORD = "javax.net.ssl.keyStorePassword";
+	public static final String COM_WOLFSSL_CERTIFICATE_CHAIN_FILE_PROPERTY = "com.wolfssl.certificateChainFile";
 	/**
-	 * System environment variable for the trust store.
+	 * System environment variable for the
+	 * wolfSSL_CTX_use_PrivateKey_file(WOLFSSL_CTX *ctx, const char *keyFile,
+	 * int type) function.
 	 */
-	public static final String JAVAX_NET_SSL_TRUST_STORE = "javax.net.ssl.trustStore";
+	public static final String COM_WOLFSSL_PRIVATE_KEY_FILE_PROPERTY = "com.wolfssl.privateKeyFile";
 	/**
-	 * System environment variable for the key store.
+	 * System environment variable for the
+	 * wolfSSL_CTX_load_verify_locations(WOLFSSL_CTX *ctx, const char *CAfile,
+	 * const char *CApath) function.
 	 */
-	public static final String JAVAX_NET_SSL_KEY_STORE = "javax.net.ssl.keyStore";
+	public static final String COM_WOLFSSL_VERIFY_LOCATIONS_PROPERTY = "com.wolfssl.certificateAuthorityFile";
+	/**
+	 * The default value for backlog.
+	 */
+	public static final int BACKLOG_DEFAULT = 50;
+	/**
+	 * The .der file extension for binary certificate/private key files.
+	 */
+	public static final String DER_FILE_EXTENSION = ".der";
 
 	/**
 	 * Private constructor.

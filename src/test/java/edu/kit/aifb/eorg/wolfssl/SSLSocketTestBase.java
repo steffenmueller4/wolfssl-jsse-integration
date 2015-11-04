@@ -20,30 +20,20 @@ public abstract class SSLSocketTestBase {
 
 	protected SSLSocketTestServer server;
 	protected SSLSocketTestClient client;
-	private final Logger logger = LoggerFactory
-			.getLogger(SSLSocketTestBase.class);
+	private final Logger logger = LoggerFactory.getLogger(SSLSocketTestBase.class);
 
 	/**
 	 * Starts the client and the server.
+	 * 
 	 * @throws NoSuchAlgorithmException
 	 * @throws IOException
 	 * @throws InterruptedException
 	 */
 	@Before
-	public void startClientAndServer() throws NoSuchAlgorithmException,
-			IOException, InterruptedException {
-		Security.insertProviderAt(
-				new edu.kit.aifb.eorg.wolfssl.WolfSSLJSSEProvider(), 1);
+	public void startClientAndServer() throws NoSuchAlgorithmException, IOException, InterruptedException {
+		// Set this library as the default provider
+		Security.insertProviderAt(new edu.kit.aifb.eorg.wolfssl.WolfSSLJSSEProvider(), 1);
 
-		// reject client initialized SSL renegotiation.
-		System.setProperty("jdk.tls.rejectClientInitiatedRenegotiation",
-				"false");
-		
-		System.setProperty("edu.kit.aifb.eorg.atlas.ssl.allowExperimentalSockets", "true");
-		
-		if (DEBUG)
-			System.setProperty("javax.net.debug", "all");
-		
 		logger.info("Test initialized successfully.");
 	}
 
@@ -56,8 +46,7 @@ public abstract class SSLSocketTestBase {
 	}
 
 	@After
-	public void closeClientAndServer() throws IOException {		
+	public void closeClientAndServer() throws IOException {
 		logger.info("Test closed successfully.");
 	}
 }
-

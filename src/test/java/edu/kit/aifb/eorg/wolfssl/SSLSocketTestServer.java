@@ -31,20 +31,18 @@ abstract class SSLSocketTestServer extends SSLSocketBaseClientServer {
 	 * @throws NoSuchAlgorithmException
 	 *             If the SSLContext could not be instantiated.
 	 */
-	public SSLSocketTestServer(int port, boolean stopOnException,
-			boolean registerHandshakeCompletedListener)
+	public SSLSocketTestServer(int port, boolean stopOnException, boolean registerHandshakeCompletedListener)
 			throws NoSuchAlgorithmException {
 		super("Server", port, stopOnException, registerHandshakeCompletedListener);
 	}
 
 	@Override
 	public void startup() throws IOException {
-		SSLServerSocketFactory sslssf = (SSLServerSocketFactory) sslContext
-				.getServerSocketFactory();
+		SSLServerSocketFactory sslssf = (SSLServerSocketFactory) sslContext.getServerSocketFactory();
 		sslServerSocket = (SSLServerSocket) sslssf.createServerSocket(port);
 
 		// Store the server's port for the client
-		//port = sslServerSocket.getLocalPort();
+		// port = sslServerSocket.getLocalPort();
 
 		// signal the client that the server's ready
 		isReady = true;
@@ -57,7 +55,7 @@ abstract class SSLSocketTestServer extends SSLSocketBaseClientServer {
 
 	@Override
 	public void cleanup() throws IOException {
-		if(sslServerSocket != null)
+		if (sslServerSocket != null)
 			sslServerSocket.close();
 	}
 

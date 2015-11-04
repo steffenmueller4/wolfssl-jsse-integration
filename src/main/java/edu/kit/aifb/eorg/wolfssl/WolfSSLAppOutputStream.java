@@ -43,10 +43,10 @@ public class WolfSSLAppOutputStream extends OutputStream {
 		if (sslSocket.isClosed() || !sslSocket.isConnected() || sslSocket.isOutputShutdown()) {
 			throw new IOException("write to a closed InputStream");
 		}
-		
+
 		// Put the int into the byte array
 		oneByte[0] = (byte) b;
-		
+
 		// Write to the sslSocket
 		sslSocket.write(oneByte, 1);
 	}
