@@ -366,7 +366,7 @@ class WolfSSLCipherSuiteList {
 			size = 1;
 		} else {
 			javaCipherSuites = wolfSSLCipherSuites.split(DELIMITER);
-			size = wolfSSLCipherSuites.length();
+			size = javaCipherSuites.length;
 		}
 
 		for (int i = 0; i < size; i++) {
