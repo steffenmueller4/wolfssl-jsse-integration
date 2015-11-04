@@ -1,7 +1,7 @@
 # wolfssl-jsse-integration
 A JSSE API integration for wolfssl / wolfssl-jni (http://www.wolfssl.com)
 
-Please do not use this project in production use, as it is a research prototype!!!
+Please do not use this project in production environments, as it is a research prototype!!!
 
 Installation steps:
 1. Clone the repository
