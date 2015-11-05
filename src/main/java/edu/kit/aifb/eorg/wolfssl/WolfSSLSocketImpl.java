@@ -278,8 +278,15 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 	public void close() throws IOException {
 		assert (session != null);
 
-		session.shutdownSSL();
-		session.freeSSL();
+		// first, close SSL
+		if (!clientMode) {
+			if (REQUIRE_CLOSE_NOTIFY)
+				session.shutdownSSL();
+			
+			session.freeSSL();
+		}
+
+		// second, close the base socket
 		super.close();
 	}
 

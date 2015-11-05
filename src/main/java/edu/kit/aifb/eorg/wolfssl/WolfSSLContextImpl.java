@@ -96,6 +96,8 @@ public final class WolfSSLContextImpl extends SSLContextSpi {
 	 */
 	private String certificateChainFile;
 	private static boolean printedWarnings = false;
+	private WolfSSLContext clientContext;
+	private WolfSSLContext serverContext;
 
 	static {
 		defaultServerSSLParams = new SSLParameters();
@@ -197,6 +199,15 @@ public final class WolfSSLContextImpl extends SSLContextSpi {
 		assert ((certificateFile != null && !certificateFile.isEmpty())
 				|| (certificateChainFile != null && !certificateChainFile.isEmpty()));
 
+		try {
+			// create the context, where we only allow TLSv1.2
+			clientContext = initContext(new WolfSSLContext(WolfSSL.TLSv1_2_ClientMethod()));
+			serverContext = initContext(new WolfSSLContext(WolfSSL.TLSv1_2_ServerMethod()));
+		} catch (Exception e) {
+			logger.error("Could not return socket factory!", e);
+			throw new IllegalStateException("Context is not initialized!");
+		}
+
 		logger.debug("engineInit(...) complete");
 
 		isInitialized = true;
@@ -207,23 +218,16 @@ public final class WolfSSLContextImpl extends SSLContextSpi {
 		if (!isInitialized) {
 			throw new IllegalStateException("Context is not initialized!");
 		}
-
+		// Check assertions
 		assert (isInitialized);
 		assert (privateKeyFile != null && !privateKeyFile.isEmpty());
 		assert ((certificateFile != null && !certificateFile.isEmpty())
 				|| (certificateChainFile != null && !certificateChainFile.isEmpty()));
+		assert (clientContext != null);
 
-		try {
-			// create the context, where we only allow TLSv1.2
-			WolfSSLContext context = initContext(new WolfSSLContext(WolfSSL.TLSv1_2_ClientMethod()));
+		logger.debug("engineGetSocketFactory() complete. Creating a socket factory now.");
 
-			logger.debug("engineGetSocketFactory() complete. Creating a socket factory now.");
-
-			return new WolfSSLSocketFactoryImpl(context);
-		} catch (Exception e) {
-			logger.error("Could not return socket factory!", e);
-			throw new IllegalStateException("Context is not initialized!");
-		}
+		return new WolfSSLSocketFactoryImpl(clientContext);
 	}
 
 	@Override
@@ -231,23 +235,16 @@ public final class WolfSSLContextImpl extends SSLContextSpi {
 		if (!isInitialized) {
 			throw new IllegalStateException("Context is not initialized!");
 		}
-
+		// Check assertions
 		assert (isInitialized);
 		assert (privateKeyFile != null && !privateKeyFile.isEmpty());
 		assert ((certificateFile != null && !certificateFile.isEmpty())
 				|| (certificateChainFile != null && !certificateChainFile.isEmpty()));
+		assert (serverContext != null);
 
-		/* Load Server key and certificate */
-		try {
-			WolfSSLContext context = initContext(new WolfSSLContext(WolfSSL.TLSv1_2_ServerMethod()));
+		logger.debug("engineGetServerSocketFactory() complete. Creating a server socket factory now.");
 
-			logger.debug("engineGetServerSocketFactory() complete. Creating a server socket factory now.");
-
-			return new WolfSSLServerSocketFactoryImpl(context);
-		} catch (Exception e) {
-			logger.error("Could not return server socket factory!", e);
-			throw new IllegalStateException("Context is not initialized!");
-		}
+		return new WolfSSLServerSocketFactoryImpl(serverContext);
 	}
 
 	private WolfSSLContext initContext(WolfSSLContext context) throws KeyManagementException {
@@ -317,5 +314,14 @@ public final class WolfSSLContextImpl extends SSLContextSpi {
 	@Override
 	protected SSLParameters engineGetDefaultSSLParameters() {
 		return defaultServerSSLParams;
+	}
+
+	@Override
+	protected void finalize() throws Throwable {
+		clientContext.free();
+		serverContext.free();
+		WolfSSL.cleanup();
+
+		super.finalize();
 	}
 }
