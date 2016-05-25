@@ -52,6 +52,26 @@ public class WolfSSLAppOutputStream extends OutputStream {
 	}
 
 	@Override
+	public void write(byte[] b, int off, int len) throws IOException {
+		if (b == null)
+			throw new NullPointerException("b");
+		else if (off < 0 || len < 0 || len > b.length - off) {
+			throw new IndexOutOfBoundsException();
+		} else if (len == 0) {
+			return;
+		}
+
+		if(off == 0){
+			sslSocket.write(b, len);
+		}else{
+			byte[] b2 = new byte[len];
+			System.arraycopy(b, off, b2, 0, len);
+			
+			sslSocket.write(b2, len);
+		}
+	}
+
+	@Override
 	public void flush() throws IOException {
 		if (logger.isDebugEnabled())
 			logger.debug("flush()");
