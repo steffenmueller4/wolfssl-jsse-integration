@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import com.wolfssl.WolfSSL;
 import com.wolfssl.WolfSSLContext;
 import com.wolfssl.WolfSSLException;
+import com.wolfssl.WolfSSLJNIException;
 import com.wolfssl.WolfSSLSession;
 
 /**
@@ -202,7 +203,11 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 		}
 
 		// TODO: Fix it for production!
-		ret = session.disableCRL();
+		try {
+			ret = session.disableCRL();
+		} catch (WolfSSLJNIException e) {
+			throw new IOException("WolfSSLJNIException occured!");
+		}
 		if (ret != WolfSSL.SSL_SUCCESS) {
 			throw new IOException("failed to disable CRL check");
 		}
@@ -283,7 +288,11 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 			if (REQUIRE_CLOSE_NOTIFY)
 				session.shutdownSSL();
 			
-			session.freeSSL();
+			try {
+				session.freeSSL();
+			} catch (IllegalStateException | WolfSSLJNIException e) {
+				logger.error("Cannot invoke session.freeSLL()!", e);
+			}
 		}
 
 		// second, close the base socket
@@ -335,7 +344,11 @@ public class WolfSSLSocketImpl extends BaseSSLSocketImpl {
 		assert (session != null);
 
 		List<String> enabled = new ArrayList<String>();
-		enabled.add(session.getVersion());
+		try {
+			enabled.add(session.getVersion());
+		} catch (IllegalStateException | WolfSSLJNIException e) {
+			logger.error("Error while session.getVersion()!", e);
+		}
 
 		return enabled.toArray(new String[enabled.size()]);
 	}

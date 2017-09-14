@@ -17,6 +17,8 @@ import javax.security.cert.X509Certificate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.wolfssl.WolfSSLJNIException;
+
 /**
  * The JSSE API SSLSession implementation.
  * 
@@ -82,7 +84,11 @@ final class WolfSSLSessionImpl extends ExtendedSSLSession {
 		if (referencedSocket == null)
 			return null;
 		else
-			return referencedSocket.session.cipherGetName();
+			try {
+				return referencedSocket.session.cipherGetName();
+			}catch (WolfSSLJNIException e) {
+				return null;
+			}
 	}
 
 	@Override
@@ -169,7 +175,11 @@ final class WolfSSLSessionImpl extends ExtendedSSLSession {
 	public String getProtocol() {
 		updateLastAccess();
 
-		return referencedSocket.session.getVersion();
+		try {
+			return referencedSocket.session.getVersion();
+		} catch (WolfSSLJNIException e) {
+			return null;
+		}
 	}
 
 	@Override
