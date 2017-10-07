@@ -8,3 +8,6 @@
 /src/main/native/com_wolfssl_WolfSSL.*
 /src/main/native/com_wolfssl_WolfSSLContext.*
 /src/main/native/com_wolfssl_WolfSSLSession.*
+.project
+.classpath
+/.settings/
