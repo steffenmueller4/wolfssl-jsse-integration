@@ -25,12 +25,9 @@ import com.wolfssl.WolfSSLContext;
  *
  */
 public final class WolfSSLContextImpl extends SSLContextSpi {
-	
-	public final static int SSL_FILETYPE_ASN1    = 2;
-    public final static int SSL_FILETYPE_PEM     = 1;
 
 	private enum KeystoreType {
-		DER(SSL_FILETYPE_ASN1), PEM(SSL_FILETYPE_PEM);
+		DER(WolfSSL.SSL_FILETYPE_ASN1), PEM(WolfSSL.SSL_FILETYPE_PEM);
 
 		KeystoreType(int v) {
 			this.v = v;

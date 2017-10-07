@@ -1,3 +1,10 @@
 /dependency-reduced-pom.xml
 /target/
 /src/generated/
+/src/main/native/com_wolfssl_globals.h
+/src/main/native/com_wolfssl_wolfcrypt_ECC.*
+/src/main/native/com_wolfssl_wolfcrypt_RSA.*
+/src/main/native/com_wolfssl_WolfSSL.*
+/src/main/native/com_wolfssl_WolfSSL.*
+/src/main/native/com_wolfssl_WolfSSLContext.*
+/src/main/native/com_wolfssl_WolfSSLSession.*
